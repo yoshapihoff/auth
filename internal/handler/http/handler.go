@@ -10,9 +10,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/yourusername/auth/internal/auth"
-	"github.com/yourusername/auth/internal/auth/oauth"
-	"github.com/yourusername/auth/internal/domain"
+	"github.com/yoshapihoff/auth/internal/auth"
+	"github.com/yoshapihoff/auth/internal/auth/oauth"
+	"github.com/yoshapihoff/auth/internal/domain"
 )
 
 type ErrorResponse struct {

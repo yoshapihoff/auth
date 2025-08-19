@@ -33,6 +33,7 @@ type UserRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*User, error)
 	Update(ctx context.Context, user *User) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	CreateTables(ctx context.Context) error
 }
 
 // UserService defines the interface for user business logic

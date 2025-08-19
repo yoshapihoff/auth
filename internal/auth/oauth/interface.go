@@ -3,7 +3,7 @@ package oauth
 
 import (
 	"context"
-	"github.com/yourusername/auth/internal/auth/oauth/oauthtypes"
+	"github.com/yoshapihoff/auth/internal/auth/oauth/oauthtypes"
 	"golang.org/x/oauth2"
 )
 

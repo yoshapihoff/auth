@@ -36,10 +36,17 @@ type OAuthConfig struct {
 	ErrorURL    string
 }
 
+type ServerConfig struct {
+	ReadTimeout  time.Duration
+	WriteTimeout time.Duration
+	IdleTimeout  time.Duration
+}
+
 type Config struct {
 	DB      DBConfig
 	JWT     JWTConfig
 	OAuth   OAuthConfig
+	Server  ServerConfig
 	AppPort string
 }
 
@@ -68,8 +75,8 @@ func Load() (*Config, error) {
 			ClientSecret: getEnv("XCOM_CLIENT_SECRET", ""),
 		},
 		RedirectURL: getEnv("OAUTH_REDIRECT_URL", "http://localhost:8080/auth/callback"),
-		SuccessURL:  getEnv("OAUTH_SUCCESS_URL", "http://localhost:3000/success"),
-		ErrorURL:    getEnv("OAUTH_ERROR_URL", "http://localhost:3000/error"),
+		SuccessURL:  getEnv("OAUTH_SUCCESS_URL", "/"),
+		ErrorURL:    getEnv("OAUTH_ERROR_URL", "/error"),
 	}
 
 	return &Config{
@@ -78,7 +85,7 @@ func Load() (*Config, error) {
 			Port:     getEnv("DB_PORT", "5432"),
 			User:     getEnv("DB_USER", "postgres"),
 			Password: getEnv("DB_PASSWORD", "postgres"),
-			Name:     getEnv("DB_NAME", "auth_service"),
+			Name:     getEnv("DB_NAME", "auth"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
 		JWT: JWTConfig{
@@ -86,6 +93,11 @@ func Load() (*Config, error) {
 			Expiration: jwtExpiration,
 		},
 		OAuth: oauthConfig,
+		Server: ServerConfig{
+			ReadTimeout:  10 * time.Second,
+			WriteTimeout: 10 * time.Second,
+			IdleTimeout:  15 * time.Second,
+		},
 		AppPort: getEnv("APP_PORT", "8080"),
 	}, nil
 }

@@ -7,8 +7,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/yourusername/auth/internal/auth/oauth/interfaces"
-	"github.com/yourusername/auth/internal/auth/oauth/oauthtypes"
+	"github.com/yoshapihoff/auth/internal/auth/oauth/interfaces"
+	"github.com/yoshapihoff/auth/internal/auth/oauth/oauthtypes"
 	"golang.org/x/oauth2"
 )
 

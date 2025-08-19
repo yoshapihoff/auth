@@ -7,18 +7,19 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/yourusername/auth/internal/domain"
+	"github.com/yoshapihoff/auth/internal/domain"
 )
 
-type UserRepository struct {
+type userRepository struct {
 	db *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) *UserRepository {
-	return &UserRepository{db: db}
+// NewUserRepository creates a new PostgreSQL user repository
+func NewUserRepository(db *sql.DB) domain.UserRepository {
+	return &userRepository{db: db}
 }
 
-func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
+func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 	query := `
 		INSERT INTO users (id, email, password_hash, name, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6)
@@ -47,7 +48,7 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	return nil
 }
 
-func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
+func (r *userRepository) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
 	query := `
 		SELECT id, email, password_hash, name, created_at, updated_at
 		FROM users
@@ -74,7 +75,7 @@ func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*domain
 	return &user, nil
 }
 
-func (r *UserRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+func (r *userRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	query := `
 		SELECT id, email, password_hash, name, created_at, updated_at
 		FROM users
@@ -101,7 +102,7 @@ func (r *UserRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.Us
 	return &user, nil
 }
 
-func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
+func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
 	query := `
 		UPDATE users
 		SET email = $2, name = $3, updated_at = $4
@@ -130,7 +131,7 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
 	return nil
 }
 
-func (r *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (r *userRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	query := `DELETE FROM users WHERE id = $1`
 
 	result, err := r.db.ExecContext(ctx, query, id)
@@ -151,7 +152,7 @@ func (r *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 // CreateTables creates the necessary database tables
-func (r *UserRepository) CreateTables(ctx context.Context) error {
+func (r *userRepository) CreateTables(ctx context.Context) error {
 	query := `
 		CREATE TABLE IF NOT EXISTS users (
 			id UUID PRIMARY KEY,

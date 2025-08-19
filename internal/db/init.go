@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/yourusername/auth/internal/config"
-	postgresRepo "github.com/yourusername/auth/internal/repository/postgres"
+	"github.com/yoshapihoff/auth/internal/config"
+	postgresRepo "github.com/yoshapihoff/auth/internal/repository/postgres"
 )
 
 // Init initializes the database connection and returns a *sql.DB instance

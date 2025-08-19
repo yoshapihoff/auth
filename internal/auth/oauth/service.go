@@ -6,9 +6,9 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"github.com/yourusername/auth/internal/auth/oauth/interfaces"
-	"github.com/yourusername/auth/internal/auth/oauth/oauthtypes"
-	"github.com/yourusername/auth/internal/auth/oauth/providers"
+	"github.com/yoshapihoff/auth/internal/auth/oauth/interfaces"
+	"github.com/yoshapihoff/auth/internal/auth/oauth/oauthtypes"
+	"github.com/yoshapihoff/auth/internal/auth/oauth/providers"
 	"golang.org/x/oauth2"
 )
 

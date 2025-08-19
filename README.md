@@ -79,12 +79,25 @@ A scalable authentication service built with Go, PostgreSQL, and JWT, supporting
 | `OAUTH_REDIRECT_URL` | OAuth callback URL | http://localhost:8080/oauth/callback |
 | `OAUTH_SUCCESS_URL` | URL to redirect after successful OAuth login | http://localhost:3000/login/success |
 | `OAUTH_ERROR_URL` | URL to redirect after OAuth error | http://localhost:3000/login/error |
+| `SERVER_READ_TIMEOUT` | Maximum duration for reading the request | 10s |
+| `SERVER_WRITE_TIMEOUT` | Maximum duration for writing the response | 10s |
+| `SERVER_IDLE_TIMEOUT` | Maximum duration for idle connections | 15s |
 
 ## Running Tests
 
 ```bash
 go test -v ./...
 ```
+
+## Server Configuration
+
+The service includes the following server configurations with their default values:
+
+- **Read Timeout**: 10 seconds - Maximum duration for reading the entire request
+- **Write Timeout**: 10 seconds - Maximum duration before timing out writes of the response
+- **Idle Timeout**: 15 seconds - Maximum amount of time to wait for the next request when keep-alives are enabled
+
+These values can be configured using the environment variables mentioned above.
 
 ## Deployment
 

@@ -11,13 +11,13 @@ import (
 
 	"github.com/gorilla/mux"
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/yourusername/auth/internal/auth"
-	"github.com/yourusername/auth/internal/auth/oauth"
-	"github.com/yourusername/auth/internal/config"
-	"github.com/yourusername/auth/internal/db"
-	httpHandler "github.com/yourusername/auth/internal/handler/http"
-	postgresRepo "github.com/yourusername/auth/internal/repository/postgres"
-	"github.com/yourusername/auth/internal/service"
+	"github.com/yoshapihoff/auth/internal/auth"
+	"github.com/yoshapihoff/auth/internal/auth/oauth"
+	"github.com/yoshapihoff/auth/internal/config"
+	"github.com/yoshapihoff/auth/internal/db"
+	httpHandler "github.com/yoshapihoff/auth/internal/handler/http"
+	postgresRepo "github.com/yoshapihoff/auth/internal/repository/postgres"
+	"github.com/yoshapihoff/auth/internal/service"
 )
 
 func main() {
@@ -86,9 +86,9 @@ func main() {
 	srv := &http.Server{
 		Addr:         ":" + cfg.AppPort,
 		Handler:      r,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  15 * time.Second,
+		ReadTimeout:  cfg.Server.ReadTimeout,
+		WriteTimeout: cfg.Server.WriteTimeout,
+		IdleTimeout:  cfg.Server.IdleTimeout,
 	}
 
 	// Run server in a goroutine
