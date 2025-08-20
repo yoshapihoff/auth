@@ -35,7 +35,7 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Token string      `json:"token"`
+	Token string       `json:"token"`
 	User  *domain.User `json:"user"`
 }
 
@@ -53,21 +53,21 @@ type OAuthStartResponse struct {
 }
 
 type OAuthCallbackResponse struct {
-	Token string      `json:"token"`
+	Token string       `json:"token"`
 	User  *domain.User `json:"user"`
 }
 
 type AuthHandler struct {
 	userService domain.UserService
-	jwtSvc     *auth.JWTService
-	oauthSvc   *oauth.Service
+	jwtSvc      *auth.JWTService
+	oauthSvc    *oauth.Service
 }
 
 func NewAuthHandler(userService domain.UserService, oauthSvc *oauth.Service, jwtSvc *auth.JWTService) *AuthHandler {
 	return &AuthHandler{
 		userService: userService,
-		jwtSvc:     jwtSvc,
-		oauthSvc:   oauthSvc,
+		jwtSvc:      jwtSvc,
+		oauthSvc:    oauthSvc,
 	}
 }
 
@@ -84,7 +84,6 @@ func (h *AuthHandler) RegisterRoutes(router *mux.Router) {
 	protected := authRouter.PathPrefix("/me").Subrouter()
 	protected.Use(h.authMiddleware)
 	protected.HandleFunc("", h.handleGetProfile).Methods("GET")
-	protected.HandleFunc("", h.handleUpdateProfile).Methods("PUT")
 	protected.HandleFunc("/password", h.handleChangePassword).Methods("PUT")
 }
 
@@ -156,27 +155,6 @@ func (h *AuthHandler) handleGetProfile(w http.ResponseWriter, r *http.Request) {
 	h.respondWithJSON(w, http.StatusOK, user)
 }
 
-func (h *AuthHandler) handleUpdateProfile(w http.ResponseWriter, r *http.Request) {
-	userID, ok := r.Context().Value("userID").(uuid.UUID)
-	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	var req UpdateProfileRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	if err := h.userService.UpdateProfile(r.Context(), userID, req.Name); err != nil {
-		handleError(w, err)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
-}
-
 func (h *AuthHandler) handleChangePassword(w http.ResponseWriter, r *http.Request) {
 	userID, ok := r.Context().Value("userID").(uuid.UUID)
 	if !ok {
@@ -190,7 +168,7 @@ func (h *AuthHandler) handleChangePassword(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := h.userService.ChangePassword(r.Context(), userID, req.OldPassword, req.NewPassword); err != nil {
+	if err := h.userService.UpdatePassword(r.Context(), userID, req.OldPassword, req.NewPassword); err != nil {
 		handleError(w, err)
 		return
 	}
