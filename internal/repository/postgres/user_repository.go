@@ -21,8 +21,8 @@ func NewUserRepository(db *sql.DB) domain.UserRepository {
 
 func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 	query := `
-		INSERT INTO users (id, email, password_hash, name, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO users (id, email, password_hash, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, created_at, updated_at
 	`
 
@@ -36,7 +36,6 @@ func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 		user.ID,
 		user.Email,
 		user.PasswordHash,
-		user.Name,
 		user.CreatedAt,
 		user.UpdatedAt,
 	).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
@@ -50,7 +49,7 @@ func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 
 func (r *userRepository) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
 	query := `
-		SELECT id, email, password_hash, name, created_at, updated_at
+		SELECT id, email, password_hash, created_at, updated_at
 		FROM users
 		WHERE email = $1
 	`
@@ -60,7 +59,6 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*domain
 		&user.ID,
 		&user.Email,
 		&user.PasswordHash,
-		&user.Name,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -77,7 +75,7 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*domain
 
 func (r *userRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	query := `
-		SELECT id, email, password_hash, name, created_at, updated_at
+		SELECT id, email, password_hash, created_at, updated_at
 		FROM users
 		WHERE id = $1
 	`
@@ -87,7 +85,6 @@ func (r *userRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.Us
 		&user.ID,
 		&user.Email,
 		&user.PasswordHash,
-		&user.Name,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -102,24 +99,49 @@ func (r *userRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.Us
 	return &user, nil
 }
 
-func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
+func (r *userRepository) UpdateEmail(ctx context.Context, userID uuid.UUID, email string) error {
+	updatedAt := time.Now()
+
 	query := `
 		UPDATE users
-		SET email = $2, name = $3, updated_at = $4
+		SET email = $2, updated_at = $3
 		WHERE id = $1
 		RETURNING updated_at
 	`
-
-	user.UpdatedAt = time.Now()
-
 	err := r.db.QueryRowContext(
 		ctx,
 		query,
-		user.ID,
-		user.Email,
-		user.Name,
-		user.UpdatedAt,
-	).Scan(&user.UpdatedAt)
+		userID,
+		email,
+		updatedAt,
+	).Scan(&updatedAt)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.ErrUserNotFound
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (r *userRepository) UpdatePasswordHash(ctx context.Context, userID uuid.UUID, passwordHash string) error {
+	updatedAt := time.Now()
+
+	query := `
+		UPDATE users
+		SET password_hash = $2, updated_at = $3
+		WHERE id = $1
+		RETURNING updated_at
+	`
+	err := r.db.QueryRowContext(
+		ctx,
+		query,
+		userID,
+		passwordHash,
+		updatedAt,
+	).Scan(&updatedAt)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -158,7 +180,6 @@ func (r *userRepository) CreateTables(ctx context.Context) error {
 			id UUID PRIMARY KEY,
 			email VARCHAR(255) UNIQUE NOT NULL,
 			password_hash VARCHAR(255) NOT NULL,
-			name VARCHAR(255),
 			created_at TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP NOT NULL
 		);

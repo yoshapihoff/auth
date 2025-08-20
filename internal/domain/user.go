@@ -21,7 +21,6 @@ type User struct {
 	ID           uuid.UUID `json:"id"`
 	Email        string    `json:"email"`
 	PasswordHash string    `json:"-"`
-	Name         string    `json:"name"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
@@ -31,7 +30,8 @@ type UserRepository interface {
 	Create(ctx context.Context, user *User) error
 	FindByEmail(ctx context.Context, email string) (*User, error)
 	FindByID(ctx context.Context, id uuid.UUID) (*User, error)
-	Update(ctx context.Context, user *User) error
+	UpdateEmail(ctx context.Context, userID uuid.UUID, email string) error
+	UpdatePasswordHash(ctx context.Context, userID uuid.UUID, passwordHash string) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	CreateTables(ctx context.Context) error
 }
@@ -42,8 +42,8 @@ type UserService interface {
 	Login(ctx context.Context, email, password string) (string, error)
 	ValidateToken(ctx context.Context, tokenString string) (*User, error)
 	GetProfile(ctx context.Context, userID uuid.UUID) (*User, error)
-	UpdateProfile(ctx context.Context, userID uuid.UUID, name string) error
-	ChangePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword string) error
+	UpdateEmail(ctx context.Context, userID uuid.UUID, email string) error
+	UpdatePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword string) error
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 }
 

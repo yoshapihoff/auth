@@ -25,11 +25,13 @@ type JWTConfig struct {
 type OAuthProviderConfig struct {
 	ClientID     string
 	ClientSecret string
+	APIVersion  string
 }
 
 type OAuthConfig struct {
 	Google      OAuthProviderConfig
 	GitHub      OAuthProviderConfig
+	VK          OAuthProviderConfig
 	XCom        OAuthProviderConfig
 	RedirectURL string
 	SuccessURL  string
@@ -69,6 +71,11 @@ func Load() (*Config, error) {
 		GitHub: OAuthProviderConfig{
 			ClientID:     getEnv("GITHUB_CLIENT_ID", ""),
 			ClientSecret: getEnv("GITHUB_CLIENT_SECRET", ""),
+		},
+		VK: OAuthProviderConfig{
+			ClientID:     getEnv("VK_CLIENT_ID", ""),
+			ClientSecret: getEnv("VK_CLIENT_SECRET", ""),
+			APIVersion:   getEnv("VK_API_VERSION", "5.199"),
 		},
 		XCom: OAuthProviderConfig{
 			ClientID:     getEnv("XCOM_CLIENT_ID", ""),

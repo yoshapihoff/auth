@@ -32,6 +32,12 @@ type Config struct {
 		ClientSecret string
 		RedirectURL  string
 	}
+	VK struct {
+		ClientID     string
+		ClientSecret string
+		RedirectURL  string
+		APIVersion   string
+	}
 }
 
 // NewService creates a new OAuth service with the given providers
@@ -57,6 +63,17 @@ func NewService(cfg Config) *Service {
 			cfg.GitHub.ClientSecret,
 			cfg.GitHub.RedirectURL,
 			nil, // use default scopes
+		)
+	}
+
+	// Initialize VK provider if configured
+	if cfg.VK.ClientID != "" && cfg.VK.ClientSecret != "" {
+		s.providers["vk"] = providers.NewVKProvider(
+			cfg.VK.ClientID,
+			cfg.VK.ClientSecret,
+			cfg.VK.RedirectURL,
+			cfg.VK.APIVersion,
+			nil, // use default scopes (email)
 		)
 	}
 

@@ -3,9 +3,9 @@ package auth
 import (
 	"context"
 	"errors"
-	"strings"
-	"net/http"
 	"fmt"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"

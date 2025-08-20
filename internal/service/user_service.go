@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"net/mail"
 
 	"github.com/google/uuid"
 	"github.com/yoshapihoff/auth/internal/auth"
@@ -13,7 +14,9 @@ import (
 var (
 	ErrInvalidCredentials = errors.New("invalid email or password")
 	ErrEmailExists        = errors.New("email already in use")
+	ErrInvalidEmail       = errors.New("invalid email")
 	ErrWeakPassword       = errors.New("password is too weak")
+	ErrUserNotFound       = errors.New("user not found")
 )
 
 type UserService struct {
@@ -29,9 +32,13 @@ func NewUserService(userRepo domain.UserRepository, jwtSvc *auth.JWTService) *Us
 }
 
 func (s *UserService) Register(ctx context.Context, email, password, name string) (*domain.User, error) {
-	// Validate input
 	if len(password) < 8 {
 		return nil, ErrWeakPassword
+	}
+
+	_, err := mail.ParseAddress(email)
+	if err != nil {
+		return nil, ErrInvalidEmail
 	}
 
 	// Check if user already exists
@@ -54,7 +61,6 @@ func (s *UserService) Register(ctx context.Context, email, password, name string
 		ID:           uuid.New(),
 		Email:        email,
 		PasswordHash: string(hashedPassword),
-		Name:         name,
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
@@ -101,28 +107,29 @@ func (s *UserService) GetProfile(ctx context.Context, userID uuid.UUID) (*domain
 	return s.userRepo.FindByID(ctx, userID)
 }
 
-// GetUserByEmail retrieves a user by their email address
-func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
-	return s.userRepo.FindByEmail(ctx, email)
-}
-
-func (s *UserService) UpdateProfile(ctx context.Context, userID uuid.UUID, name string) error {
-	user, err := s.userRepo.FindByID(ctx, userID)
+func (s *UserService) UpdateEmail(ctx context.Context, userID uuid.UUID, email string) error {
+	_, err := mail.ParseAddress(email)
 	if err != nil {
+		return ErrInvalidEmail
+	}
+
+	_, err = s.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		if errors.Is(err, domain.ErrUserNotFound) {
+			return ErrUserNotFound
+		}
 		return err
 	}
 
-	user.Name = name
-	return s.userRepo.Update(ctx, user)
+	return s.userRepo.UpdateEmail(ctx, userID, email)
 }
 
-func (s *UserService) ChangePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword string) error {
-	if len(newPassword) < 8 {
-		return ErrWeakPassword
-	}
-
+func (s *UserService) UpdatePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword string) error {
 	user, err := s.userRepo.FindByID(ctx, userID)
 	if err != nil {
+		if errors.Is(err, domain.ErrUserNotFound) {
+			return ErrInvalidCredentials
+		}
 		return err
 	}
 
@@ -131,12 +138,21 @@ func (s *UserService) ChangePassword(ctx context.Context, userID uuid.UUID, oldP
 		return ErrInvalidCredentials
 	}
 
-	// Hash new password
+	// Validate new password
+	if len(newPassword) < 8 {
+		return ErrWeakPassword
+	}
+
+	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
-	user.PasswordHash = string(hashedPassword)
-	return s.userRepo.Update(ctx, user)
+	return s.userRepo.UpdatePasswordHash(ctx, userID, string(hashedPassword))
+}
+
+// GetUserByEmail retrieves a user by their email address
+func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
+	return s.userRepo.FindByEmail(ctx, email)
 }

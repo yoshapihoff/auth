@@ -39,7 +39,8 @@ func main() {
 
 	// Initialize JWT service
 	jwtSvc := auth.NewJWTService(auth.JWTConfig{
-		Secret: cfg.JWT.Secret,
+		Secret:     cfg.JWT.Secret,
+		Expiration: cfg.JWT.Expiration,
 	})
 
 	// Initialize OAuth service
@@ -61,6 +62,17 @@ func main() {
 			ClientID:     cfg.OAuth.GitHub.ClientID,
 			ClientSecret: cfg.OAuth.GitHub.ClientSecret,
 			RedirectURL:  cfg.OAuth.RedirectURL + "/callback/github",
+		},
+		VK: struct {
+			ClientID     string
+			ClientSecret string
+			RedirectURL  string
+			APIVersion   string
+		}{
+			ClientID:     cfg.OAuth.VK.ClientID,
+			ClientSecret: cfg.OAuth.VK.ClientSecret,
+			RedirectURL:  cfg.OAuth.RedirectURL + "/callback/vk",
+			APIVersion:   cfg.OAuth.VK.APIVersion,
 		},
 	}
 
