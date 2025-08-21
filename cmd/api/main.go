@@ -48,32 +48,27 @@ func main() {
 		Google: struct {
 			ClientID     string
 			ClientSecret string
-			RedirectURL  string
 		}{
 			ClientID:     cfg.OAuth.Google.ClientID,
 			ClientSecret: cfg.OAuth.Google.ClientSecret,
-			RedirectURL:  cfg.OAuth.RedirectURL + "/callback/google",
 		},
 		GitHub: struct {
 			ClientID     string
 			ClientSecret string
-			RedirectURL  string
 		}{
 			ClientID:     cfg.OAuth.GitHub.ClientID,
 			ClientSecret: cfg.OAuth.GitHub.ClientSecret,
-			RedirectURL:  cfg.OAuth.RedirectURL + "/callback/github",
 		},
 		VK: struct {
 			ClientID     string
 			ClientSecret string
-			RedirectURL  string
 			APIVersion   string
 		}{
 			ClientID:     cfg.OAuth.VK.ClientID,
 			ClientSecret: cfg.OAuth.VK.ClientSecret,
-			RedirectURL:  cfg.OAuth.RedirectURL + "/callback/vk",
 			APIVersion:   cfg.OAuth.VK.APIVersion,
 		},
+		RedirectURL: cfg.OAuth.RedirectURL,
 	}
 
 	oauthSvc := oauth.NewService(oauthCfg)

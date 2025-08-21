@@ -25,17 +25,14 @@ type JWTConfig struct {
 type OAuthProviderConfig struct {
 	ClientID     string
 	ClientSecret string
-	APIVersion  string
+	APIVersion   string
 }
 
 type OAuthConfig struct {
 	Google      OAuthProviderConfig
 	GitHub      OAuthProviderConfig
 	VK          OAuthProviderConfig
-	XCom        OAuthProviderConfig
 	RedirectURL string
-	SuccessURL  string
-	ErrorURL    string
 }
 
 type ServerConfig struct {
@@ -77,13 +74,7 @@ func Load() (*Config, error) {
 			ClientSecret: getEnv("VK_CLIENT_SECRET", ""),
 			APIVersion:   getEnv("VK_API_VERSION", "5.199"),
 		},
-		XCom: OAuthProviderConfig{
-			ClientID:     getEnv("XCOM_CLIENT_ID", ""),
-			ClientSecret: getEnv("XCOM_CLIENT_SECRET", ""),
-		},
-		RedirectURL: getEnv("OAUTH_REDIRECT_URL", "http://localhost:8080/auth/callback"),
-		SuccessURL:  getEnv("OAUTH_SUCCESS_URL", "/"),
-		ErrorURL:    getEnv("OAUTH_ERROR_URL", "/error"),
+		RedirectURL: getEnv("OAUTH_REDIRECT_URL", "http://localhost:8080/auth/oauth/%s/callback"),
 	}
 
 	return &Config{

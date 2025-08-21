@@ -25,19 +25,17 @@ type Config struct {
 	Google struct {
 		ClientID     string
 		ClientSecret string
-		RedirectURL  string
 	}
 	GitHub struct {
 		ClientID     string
 		ClientSecret string
-		RedirectURL  string
 	}
 	VK struct {
 		ClientID     string
 		ClientSecret string
-		RedirectURL  string
 		APIVersion   string
 	}
+	RedirectURL string
 }
 
 // NewService creates a new OAuth service with the given providers
@@ -51,7 +49,7 @@ func NewService(cfg Config) *Service {
 		s.providers["google"] = providers.NewGoogleProvider(
 			cfg.Google.ClientID,
 			cfg.Google.ClientSecret,
-			cfg.Google.RedirectURL,
+			fmt.Sprintf(cfg.RedirectURL, "google"),
 			nil, // use default scopes
 		)
 	}
@@ -61,7 +59,7 @@ func NewService(cfg Config) *Service {
 		s.providers["github"] = providers.NewGitHubProvider(
 			cfg.GitHub.ClientID,
 			cfg.GitHub.ClientSecret,
-			cfg.GitHub.RedirectURL,
+			fmt.Sprintf(cfg.RedirectURL, "github"),
 			nil, // use default scopes
 		)
 	}
@@ -71,7 +69,7 @@ func NewService(cfg Config) *Service {
 		s.providers["vk"] = providers.NewVKProvider(
 			cfg.VK.ClientID,
 			cfg.VK.ClientSecret,
-			cfg.VK.RedirectURL,
+			fmt.Sprintf(cfg.RedirectURL, "vk"),
 			cfg.VK.APIVersion,
 			nil, // use default scopes (email)
 		)
@@ -98,7 +96,10 @@ func (s *Service) GetAuthURL(provider, state string) (string, error) {
 
 	// Generate a random state if not provided
 	if state == "" {
-		state = generateRandomState()
+		state, err = generateRandomString(32)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	return p.GetAuthURL(state), nil
@@ -132,18 +133,6 @@ func (s *Service) GetUserInfo(ctx context.Context, provider string, token *oauth
 	}
 
 	return userInfo, nil
-}
-
-// generateRandomState generates a random string for OAuth state
-func generateRandomState() string {
-	s, err := generateRandomString(32)
-	if err != nil {
-		// Fallback to simple random string if there's an error
-		randBytes := make([]byte, 32)
-		_, _ = rand.Read(randBytes)
-		return base64.URLEncoding.EncodeToString(randBytes)
-	}
-	return s
 }
 
 // generateRandomString generates a random string of the given length

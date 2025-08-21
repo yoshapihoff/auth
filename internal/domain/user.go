@@ -46,15 +46,3 @@ type UserService interface {
 	UpdatePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword string) error
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 }
-
-// OAuthProvider defines the interface for OAuth authentication
-type OAuthProvider interface {
-	GetAuthURL(state string) string
-	GetUserData(code string) (map[string]interface{}, error)
-}
-
-// OAuthService defines the interface for OAuth operations
-type OAuthService interface {
-	AuthCodeURL(provider, state string) (string, error)
-	Exchange(ctx context.Context, provider, code string) (*User, error)
-}
